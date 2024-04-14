@@ -7,6 +7,9 @@ services:
       - /home/algiz/volumes/mongo-master:/data/db
     ports:
       - 27017:27017
+    networks:
+      - mongo
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
 
   slave-db:
     image: mongo
@@ -16,3 +19,10 @@ services:
       - /home/algiz/volumes/mongo-slave:/data/db
     ports:
       - 27018:27017
+    networks:
+      - mongo
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs" ]
+
+networks:
+  mongo:
+    driver: bridge
