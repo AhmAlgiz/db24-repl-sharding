@@ -1,0 +1,18 @@
+services:
+  master-db:
+    image: mongo
+    container_name: master
+    restart: always
+    volumes:
+      - /home/algiz/volumes/mongo-master:/data/db
+    ports:
+      - 27017:27017
+
+  slave-db:
+    image: mongo
+    container_name: slave
+    restart: always
+    volumes:
+      - /home/algiz/volumes/mongo-slave:/data/db
+    ports:
+      - 27018:27017
