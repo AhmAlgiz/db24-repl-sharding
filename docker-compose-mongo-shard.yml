@@ -1,0 +1,54 @@
+services:
+  server:
+    image: mongo
+    container_name: server
+    restart: always
+    volumes:
+      - /home/algiz/volumes/mongo-server:/data/db
+    ports:
+      - 27001:27017
+    networks:
+      - mongo
+    entrypoint: [ "/usr/bin/mongos", "--bind_ip_all", "--configdb", "dz-2_mongo/config:27017" ]
+    depends_on:
+      - config
+
+  config:
+    image: mongo
+    container_name: config
+    restart: always
+    volumes:
+      - /home/algiz/volumes/mongo-config:/data/db
+    ports:
+      - 27002:27017
+    networks:
+      - mongo
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--configsvr", "--replSet", "cfg" ]
+
+  shard1:
+    image: mongo
+    container_name: shard1
+    restart: always
+    volumes:
+      - /home/algiz/volumes/mongo-shard1:/data/db
+    ports:
+      - 27010:27017
+    networks:
+      - mongo
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "shards" ]
+
+  shard2:
+    image: mongo
+    container_name: shard2
+    restart: always
+    volumes:
+      - /home/algiz/volumes/mongo-shard2:/data/db
+    ports:
+      - 27020:27017
+    networks:
+      - mongo
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "shards" ]
+
+networks:
+  mongo:
+    driver: bridge
