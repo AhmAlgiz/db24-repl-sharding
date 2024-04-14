@@ -1,0 +1,22 @@
+services:
+  master-db:
+    image: postgres
+    container_name: master
+    restart: always
+    volumes:
+      - /home/algiz/volumes/master:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - 8080:8080
+
+  slave-db:
+    image: postgres
+    container_name: slave
+    restart: always
+    volumes:
+      - /home/algiz/volumes/slave:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+    ports:
+      - 8081:8080
