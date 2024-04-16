@@ -12,6 +12,8 @@ services:
     entrypoint: [ "/usr/bin/mongos", "--bind_ip_all", "--configdb", "dz-2_mongo/config:27017" ]
     depends_on:
       - config
+      - shard1
+      - shard2
 
   config:
     image: mongo
@@ -24,6 +26,9 @@ services:
     networks:
       - mongo
     entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--configsvr", "--replSet", "cfg", "--port", "27017" ]
+#    links:
+#      - shard1
+#      - shard2
 
   shard1:
     image: mongo
@@ -35,7 +40,18 @@ services:
       - 27010:27017
     networks:
       - mongo
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "shards" ]
+    entrypoint: [ "/usr/bin/mongod", "--shardsvr", "--bind_ip_all", "--replSet", "shard1" ]
+  shard12:
+    image: mongo
+    container_name: shard12
+    restart: always
+    volumes:
+      - /home/algiz/volumes/mongo-shard12:/data/db
+    ports:
+      - 27011:27017
+    networks:
+      - mongo
+    entrypoint: [ "/usr/bin/mongod", "--shardsvr", "--bind_ip_all", "--replSet", "shard1" ]
 
   shard2:
     image: mongo
@@ -47,7 +63,19 @@ services:
       - 27020:27017
     networks:
       - mongo
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "shards" ]
+    entrypoint: [ "/usr/bin/mongod", "--shardsvr", "--bind_ip_all", "--replSet", "shard2" ]
+
+  shard22:
+    image: mongo
+    container_name: shard22
+    restart: always
+    volumes:
+      - /home/algiz/volumes/mongo-shard22:/data/db
+    ports:
+      - 27021:27017
+    networks:
+      - mongo
+    entrypoint: [ "/usr/bin/mongod", "--shardsvr", "--bind_ip_all", "--replSet", "shard2" ]
 
 networks:
   mongo:
