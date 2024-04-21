@@ -1,82 +1,78 @@
 services:
-  server:
+  configsvr1:
+    image: mongo
+    container_name: cfg
+    restart: always
+    command: mongod --configsvr --replSet configReplSet --bind_ip localhost --port 27016
+    volumes:
+      - /home/algiz/volumes/mongo-cfg-server:/data/db
+    ports:
+      - "27016:27016"
+    networks:
+      - mongo-cluster
+
+  mongos:
     image: mongo
     container_name: server
     restart: always
-    volumes:
-      - /home/algiz/volumes/mongo-server:/data/db
+    command: mongos --configdb configReplSet/configsvr1:27016 --bind_ip localhost --port 27010
+#    volumes:
+#      - /home/algiz/volumes/mongo-server:/data/db
     ports:
-      - 27001:27017
-    networks:
-      - mongo
-    entrypoint: [ "/usr/bin/mongos", "--bind_ip_all", "--configdb", "dz-2_mongo/config:27017" ]
+      - "27010:27010"
     depends_on:
-      - config
-      - shard1
-      - shard2
+      - configsvr1
+    networks:
+      - mongo-cluster
 
-  config:
+  shard1svr1:
     image: mongo
-    container_name: config
+    container_name: sh1r1
     restart: always
-    volumes:
-      - /home/algiz/volumes/mongo-config:/data/db
+#    volumes:
+#      - /home/algiz/volumes/mongo-shard1svr1:/data/db
+    command: mongod --shardsvr --replSet shard1 --bind_ip localhost --port 27018
     ports:
-      - 27017:27017
+      - "27018:27018"
     networks:
-      - mongo
-    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--configsvr", "--replSet", "cfg", "--port", "27017" ]
-#    links:
-#      - shard1
-#      - shard2
+      - mongo-cluster
 
-  shard1:
+  shard1svr2:
     image: mongo
-    container_name: shard1
+    container_name: sh1r2
     restart: always
-    volumes:
-      - /home/algiz/volumes/mongo-shard1:/data/db
+#    volumes:
+#      - /home/algiz/volumes/mongo-shard1svr2:/data/db
+    command: mongod --shardsvr --replSet shard1 --bind_ip localhost --port 27019
     ports:
-      - 27010:27017
+      - "27019:27019"
     networks:
-      - mongo
-    entrypoint: [ "/usr/bin/mongod", "--shardsvr", "--bind_ip_all", "--replSet", "shard1" ]
-  shard12:
-    image: mongo
-    container_name: shard12
-    restart: always
-    volumes:
-      - /home/algiz/volumes/mongo-shard12:/data/db
-    ports:
-      - 27011:27017
-    networks:
-      - mongo
-    entrypoint: [ "/usr/bin/mongod", "--shardsvr", "--bind_ip_all", "--replSet", "shard1" ]
+      - mongo-cluster
 
-  shard2:
+  shard2svr1:
     image: mongo
-    container_name: shard2
+    container_name: sh2r1
     restart: always
-    volumes:
-      - /home/algiz/volumes/mongo-shard2:/data/db
+#    volumes:
+#      - /home/algiz/volumes/mongo-shard2svr1:/data/db
+    command: mongod --shardsvr --replSet shard2 --bind_ip localhost --port 27021
     ports:
-      - 27020:27017
+      - "27021:27021"
     networks:
-      - mongo
-    entrypoint: [ "/usr/bin/mongod", "--shardsvr", "--bind_ip_all", "--replSet", "shard2" ]
+      - mongo-cluster
 
-  shard22:
+  shard2svr2:
     image: mongo
-    container_name: shard22
+    container_name: sh2r2
     restart: always
-    volumes:
-      - /home/algiz/volumes/mongo-shard22:/data/db
+#    volumes:
+#      - /home/algiz/volumes/mongo-shard2svr2:/data/db
+    command: mongod --shardsvr --replSet shard2 --bind_ip localhost --port 27021
     ports:
-      - 27021:27017
+      - "27022:27022"
     networks:
-      - mongo
-    entrypoint: [ "/usr/bin/mongod", "--shardsvr", "--bind_ip_all", "--replSet", "shard2" ]
+      - mongo-cluster
 
 networks:
-  mongo:
+  mongo-cluster:
     driver: bridge
