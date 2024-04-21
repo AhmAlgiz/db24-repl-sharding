@@ -1,0 +1,35 @@
+services:
+  citus_master:
+    image: citusdata/citus
+    container_name: master
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+
+  citus_worker_1:
+    image: citusdata/citus
+    container_name: worker-1
+    depends_on:
+      - citus_master
+    links:
+      - citus_master
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+
+  citus_worker_2:
+    image: citusdata/citus
+    container_name: worker-2
+    depends_on:
+      - citus_master
+    links:
+      - citus_master
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
